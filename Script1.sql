@@ -4,25 +4,25 @@ LIMIT 5;
 SELECT * FROM Album a
 LIMIT 5;
 
---Вывод Названия альбома и название группы из таблиц Album, Artist
+--Р’С‹РІРѕРґ РќР°Р·РІР°РЅРёСЏ Р°Р»СЊР±РѕРјР° Рё РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРїС‹ РёР· С‚Р°Р±Р»РёС† Album, Artist
 SELECT Title, Name   FROM Album a
 INNER JOIN  Artist a2  ON a.ArtistId = a2.ArtistId 
 
--- Количество альбомов с выводом его названия, для которых количество жанров >=2
+-- РљРѕР»РёС‡РµСЃС‚РІРѕ Р°Р»СЊР±РѕРјРѕРІ СЃ РІС‹РІРѕРґРѕРј РµРіРѕ РЅР°Р·РІР°РЅРёСЏ, РґР»СЏ РєРѕС‚РѕСЂС‹С… РєРѕР»РёС‡РµСЃС‚РІРѕ Р¶Р°РЅСЂРѕРІ >=2
 SELECT Title from Album a inner join Track t ON t.AlbumId =a.AlbumId 
 GROUP BY a.AlbumId 
 HAVING count (DISTINCT GenreId)>=2
 
--- Вывести покупателей, которые оформили заказы в месяце первыми (к примеру, для предоставления дальнейшей скидки)
+-- Р’С‹РІРµСЃС‚Рё РїРѕРєСѓРїР°С‚РµР»РµР№, РєРѕС‚РѕСЂС‹Рµ РѕС„РѕСЂРјРёР»Рё Р·Р°РєР°Р·С‹ РІ РјРµСЃСЏС†Рµ РїРµСЂРІС‹РјРё (Рє РїСЂРёРјРµСЂСѓ, РґР»СЏ РїСЂРµРґРѕСЃС‚Р°РІР»РµРЅРёСЏ РґР°Р»СЊРЅРµР№С€РµР№ СЃРєРёРґРєРё)
 SELECT * FROM Customer c 
 LIMIT 10;
 SELECT * FROM Invoice i 
 LIMIT 10;
 
---В табл. Customer берем CustomerId, FirstName, LastName, в Invoice - InvoiceId, CustomerId, InvoiceDate (но даты не разбиты по месяцам - разобьем и создадим новый столбец)
+--Р’ С‚Р°Р±Р». Customer Р±РµСЂРµРј CustomerId, FirstName, LastName, РІ Invoice - InvoiceId, CustomerId, InvoiceDate (РЅРѕ РґР°С‚С‹ РЅРµ СЂР°Р·Р±РёС‚С‹ РїРѕ РјРµСЃСЏС†Р°Рј - СЂР°Р·РѕР±СЊРµРј Рё СЃРѕР·РґР°РґРёРј РЅРѕРІС‹Р№ СЃС‚РѕР»Р±РµС†)
 SELECT LastName, i.*, strftime('%m', InvoiceDate) as MonthDate FROM Customer c INNER JOIN Invoice i ON i.CustomerId = c.CustomerId 
 
---Ранжируем клиентов (в табличной форме)
+--Р Р°РЅР¶РёСЂСѓРµРј РєР»РёРµРЅС‚РѕРІ (РІ С‚Р°Р±Р»РёС‡РЅРѕР№ С„РѕСЂРјРµ)
 WITH monthTable as (
 SELECT LastName, i.*, strftime('%m', InvoiceDate) as MonthDate 
 FROM Customer c 
@@ -30,7 +30,7 @@ INNER JOIN Invoice i
       ON i.CustomerId = c.CustomerId
  )
  
--- Вложенный запрос rowTable чтобы определить самых первых по ранжированию по первой покупке и по алфавиту по фамилии 
+-- Р’Р»РѕР¶РµРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ rowTable С‡С‚РѕР±С‹ РѕРїСЂРµРґРµР»РёС‚СЊ СЃР°РјС‹С… РїРµСЂРІС‹С… РїРѕ СЂР°РЅР¶РёСЂРѕРІР°РЅРёСЋ РїРѕ РїРµСЂРІРѕР№ РїРѕРєСѓРїРєРµ Рё РїРѕ Р°Р»С„Р°РІРёС‚Сѓ РїРѕ С„Р°РјРёР»РёРё 
  SELECT * FROM ( 
 SELECT  LastName, InvoiceDate, 
 ROW_NUMBER () over (PARTITION BY monthDate ORDER BY InvoiceDate, LastName) AS rn
@@ -39,7 +39,7 @@ FROM monthTable
 WHERE rn = 1
 
 
---Вывести всеъ клиентов, которые купили, к примеру,  1 января (функция RANK), т.е. вывод всех покупателей, которые попадают в одно и то же время
+--Р’С‹РІРµСЃС‚Рё РІСЃРµСЉ РєР»РёРµРЅС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РєСѓРїРёР»Рё, Рє РїСЂРёРјРµСЂСѓ,  1 СЏРЅРІР°СЂСЏ (С„СѓРЅРєС†РёСЏ RANK), С‚.Рµ. РІС‹РІРѕРґ РІСЃРµС… РїРѕРєСѓРїР°С‚РµР»РµР№, РєРѕС‚РѕСЂС‹Рµ РїРѕРїР°РґР°СЋС‚ РІ РѕРґРЅРѕ Рё С‚Рѕ Р¶Рµ РІСЂРµРјСЏ
 WITH monthTable as (
 SELECT LastName, i.*, strftime('%m', InvoiceDate) as MonthDate 
 FROM Customer c 
